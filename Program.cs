@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json;
 
 namespace ManagementBook;
 
@@ -11,7 +12,7 @@ internal class Program
 		Console.Title = "ІС \"Книгарня\"";
 		Console.InputEncoding = Encoding.UTF8;
 		Console.OutputEncoding = Encoding.UTF8;
-
+		LoadData();
 		while (true) 
 		{
 			Console.BackgroundColor = ConsoleColor.DarkYellow;
@@ -88,7 +89,7 @@ internal class Program
 
 		lastId++;
 		books.Add(new Book { Id = lastId, Name = name, Author = author, Publisher = publisher, Year = year, Quantity = quantity });
-
+		SaveData();
 		Console.ForegroundColor = ConsoleColor.Red;
 		Console.WriteLine("\nКнигу успішно додано!");
 		Console.WriteLine("\nДля повернення на головне меню натисніть \nбудь-яку клавішу...");
@@ -97,12 +98,84 @@ internal class Program
 	}
 	static public void ReadAllBooks()
 	{
+		Console.Clear();
+		Console.BackgroundColor = ConsoleColor.DarkYellow;
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine("            Інформаційна система            ");
+		Console.WriteLine("                 КНИГАРНЯ                   ");
+		Console.WriteLine();
+		Console.BackgroundColor = ConsoleColor.Blue;
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine("\t  Відображення всіх книг ");
+		Console.BackgroundColor = ConsoleColor.Black;
+		Console.ForegroundColor = ConsoleColor.Red;
+		if (books.Count == 0) Console.WriteLine("\nКниги відсутні!");
+		else
+		{
+			Console.ForegroundColor = ConsoleColor.DarkYellow;
+			Console.WriteLine("\nПерелік книг: ");
+			Console.ForegroundColor = ConsoleColor.White;
+			foreach (var book in books) 
+			{
+				Console.WriteLine($"{book.Id}. {book.Name} / {book.Author} - {book.Publisher}, {book.Year}. - {book.Quantity} c.");
+			}
+		}
+		Console.ForegroundColor = ConsoleColor.Red;
+		Console.WriteLine("\nДля повернення на головне меню натисніть \nбудь-яку клавішу...");
+		Console.ReadKey();
+		Console.Clear();
+
 	}
 	static public void UpdateBook()
 	{
 	}
 	static public void DeleteBook()
 	{
+		Console.Clear();
+		Console.BackgroundColor = ConsoleColor.DarkYellow;
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine("            Інформаційна система            ");
+		Console.WriteLine("                 КНИГАРНЯ                   ");
+		Console.WriteLine();
+		Console.BackgroundColor = ConsoleColor.Blue;
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine("\t\t Видалення книги ");
+		Console.BackgroundColor = ConsoleColor.Black;
+		Console.ForegroundColor = ConsoleColor.DarkYellow;
+		Console.Write("\nВведіть ID-книжки для видалення: ");
+		Console.ForegroundColor = ConsoleColor.White;
+		int id = Convert.ToInt32(Console.ReadLine());
+		Book bookToDelete = books.Find(x => x.Id == id);
+
+	}
+	static public void LoadData()
+	{
+		if (File.Exists("data.json")) {
+			string json = File.ReadAllText("data.json");
+			if (json != null) { 
+				books = JsonSerializer.Deserialize<List<Book>>(json);
+			}
+		}
+		foreach (var book in books) {
+			if (book.Id > lastId) 
+			{ 
+				lastId = book.Id;
+			}
+		}
+	}
+	static public void UpdateIDs()
+	{
+		int newId = 1;
+		foreach (var book in books) { 
+			book.Id = newId;
+			newId++;
+		}
+		lastId = newId - 1;
+	}
+	static public void SaveData()
+	{
+		string json = JsonSerializer.Serialize(books);
+		File.WriteAllText("data.json", json);
 	}
 	static public void Error()
 	{
