@@ -32,7 +32,8 @@ internal class Program
 			Console.WriteLine("│ 2 │ READ   │ Відображення всіх книг      │");
 			Console.WriteLine("│ 3 │ UPDATE │ Оновлення книги             │");
 			Console.WriteLine("│ 4 │ DELETE │ Видалення книги             │");
-			Console.WriteLine("│ 5 │ EXIT   │ Вихід                       │");
+			Console.WriteLine("│ 5 │ SEARCH │ Пошук книги                 │");
+			Console.WriteLine("│ 6 │ EXIT   │ Вихід                       │");
 			Console.WriteLine("└───┴────────┴─────────────────────────────┘");
 			Console.ForegroundColor = ConsoleColor.DarkYellow;
 			Console.Write(" ОБЕРІТЬ НОМЕР ДІЇ: ");
@@ -44,12 +45,57 @@ internal class Program
 				case "2": ReadAllBooks(); break;
 				case "3": UpdateBook(); break;
 				case "4": DeleteBook(); break;
-				case "5": Environment.Exit(0); break;
+				case "5": SearchBook(); break;
+				case "6": Environment.Exit(0); break;
 				default: Error(); break;
 			}
 		}
 	}
-	static public void CreateBook()
+	static public void SearchBook()
+	{
+		Console.Clear();
+		Console.BackgroundColor = ConsoleColor.DarkYellow;
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine("            Інформаційна система            ");
+		Console.WriteLine("                 КНИГАРНЯ                   ");
+		Console.WriteLine();
+		Console.BackgroundColor = ConsoleColor.Blue;
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine("\t\t Пошук книги ");
+		Console.BackgroundColor = ConsoleColor.Black;
+
+		Console.ForegroundColor = ConsoleColor.DarkYellow;
+		Console.Write("\nВведіть часткову назву книги: ");
+		Console.ForegroundColor = ConsoleColor.White;
+		string? name = Console.ReadLine()?.Trim();
+		if (!string.IsNullOrWhiteSpace(name))
+		{
+			bool result = false;
+			foreach (var book in books)
+			{
+				if (book.Name != null && book.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
+				{
+					if (!result)
+					{
+						Console.ForegroundColor = ConsoleColor.DarkYellow;
+						Console.WriteLine("\nРезультати пошуку:");
+						result = true;
+					}
+					Console.ForegroundColor = ConsoleColor.White;
+					Console.WriteLine($"{book.Id}. {book.Name} / {book.Author} - {book.Publisher}, {book.Year}. - {book.Quantity} c.");
+				}
+			}
+		}
+		else { 
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("\nВведено порожній запит!");
+		}
+		Console.ForegroundColor = ConsoleColor.Red;
+		Console.WriteLine("\nДля повернення на головне меню натисніть \nбудь-яку клавішу...");
+		Console.ReadKey();
+		Console.Clear();
+	}
+		static public void CreateBook()
 	{
 		Console.Clear();
 		Console.BackgroundColor = ConsoleColor.DarkYellow;
@@ -128,6 +174,57 @@ internal class Program
 	}
 	static public void UpdateBook()
 	{
+		Console.Clear();
+		Console.BackgroundColor = ConsoleColor.DarkYellow;
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine("            Інформаційна система            ");
+		Console.WriteLine("                 КНИГАРНЯ                   ");
+		Console.WriteLine();
+		Console.BackgroundColor = ConsoleColor.Blue;
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.WriteLine("\t\t Оновлення книги ");
+		Console.BackgroundColor = ConsoleColor.Black;
+		Console.ForegroundColor = ConsoleColor.DarkYellow;
+		Console.Write("\nВведіть ID-книжки для оновлення: ");
+		Console.ForegroundColor = ConsoleColor.White;
+		int id = Convert.ToInt32(Console.ReadLine());
+		Book bookToUpdate = books.Find(x => x.Id == id);
+		if (bookToUpdate == null) Console.WriteLine("\nКнигу не знайдено!");
+		else
+		{
+			Console.ForegroundColor = ConsoleColor.DarkYellow;
+			Console.Write("\nВведіть назву книги: ");
+			Console.ForegroundColor = ConsoleColor.White;
+			bookToUpdate.Name = Console.ReadLine();
+
+			Console.ForegroundColor = ConsoleColor.DarkYellow;
+			Console.Write("Додайте авторів книги: ");
+			Console.ForegroundColor = ConsoleColor.White;
+			bookToUpdate.Author = Console.ReadLine();
+
+			Console.ForegroundColor = ConsoleColor.DarkYellow;
+			Console.Write("Вкажіть видавництво книги: ");
+			Console.ForegroundColor = ConsoleColor.White;
+			bookToUpdate.Publisher = Console.ReadLine();
+
+			Console.ForegroundColor = ConsoleColor.DarkYellow;
+			Console.Write("Вкажіть рік випуску книги: ");
+			Console.ForegroundColor = ConsoleColor.White;
+			bookToUpdate.Year = Convert.ToInt32(Console.ReadLine());
+
+			Console.ForegroundColor = ConsoleColor.DarkYellow;
+			Console.Write("Введіть кількість сторінок: ");
+			Console.ForegroundColor = ConsoleColor.White;
+			bookToUpdate.Quantity = Convert.ToInt32(Console.ReadLine());
+
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("\n Інформацію про книгу успішно оновлено!");
+			SaveData();
+		}
+		Console.ForegroundColor = ConsoleColor.Red;
+		Console.WriteLine("\nДля повернення на головне меню натисніть \nбудь-яку клавішу...");
+		Console.ReadKey();
+		Console.Clear();
 	}
 	static public void DeleteBook()
 	{
@@ -146,7 +243,19 @@ internal class Program
 		Console.ForegroundColor = ConsoleColor.White;
 		int id = Convert.ToInt32(Console.ReadLine());
 		Book bookToDelete = books.Find(x => x.Id == id);
-
+		Console.ForegroundColor = ConsoleColor.Red;
+		if (bookToDelete == null) Console.WriteLine("\nКнигу не знайдено!");
+		else
+		{
+			books.Remove(bookToDelete);
+			UpdateIDs();
+			SaveData();
+			Console.WriteLine("\nКнигу успішно видалено!");
+		}
+		Console.ForegroundColor = ConsoleColor.Red;
+		Console.WriteLine("\nДля повернення на головне меню натисніть \nбудь-яку клавішу...");
+		Console.ReadKey();
+		Console.Clear();
 	}
 	static public void LoadData()
 	{
